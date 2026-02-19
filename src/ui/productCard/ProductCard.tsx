@@ -18,7 +18,7 @@ export const ProductCard = forwardRef<HTMLDivElement, IProduct>(
     function handleClick(evt: React.MouseEvent<HTMLDivElement>) {
       if (heartlike) {
         if (evt.target !== heartlike.current) {
-          navigate(`/${props.id}`);
+          navigate(`/card/id=${props.id}`);
         }
       }
     }

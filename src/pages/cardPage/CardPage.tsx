@@ -1,6 +1,6 @@
 import styles from "./CardPage.module.css";
 import { useEffect, useState, type FC } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ButtonUI } from "../../ui/button";
 import { useAppDispatch, useAppSelector } from "../../services/hooks";
 import { type IProduct } from "../../types";
@@ -14,14 +14,25 @@ import { selectIsAuth } from "../../services/selectors/user-selectors/user-selec
 
 const CardPage: FC = () => {
   const dispatch = useAppDispatch();
-  const { idCard } = useParams();
+  const { idCardR } = useParams();
+  const idCard: string = idCardR ? idCardR.slice(3) : "";
   const products: IProduct[] = useAppSelector(selectProducts);
   const [PutToBasketButton, setPut] = useState<boolean>(false);
   let card: IProduct;
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!idCardR || !idCardR.includes("id=")) {
+      navigate("*");
+      return;
+    }
+  }, [idCardR, navigate]);
+
   if (idCard) {
     card = products.find((item) => item.id === idCard)!;
   } else {
+    console.log(idCardR);
     throw new Error("Товар не найден");
   }
 

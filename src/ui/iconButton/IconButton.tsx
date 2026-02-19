@@ -11,7 +11,6 @@ import Basket from "../assets/basket_header.svg?react";
 import { useAppSelector } from "../../services/hooks";
 import type { IProduct } from "src/types";
 import { selectBasket } from "../../services/selectors/userUIData-selectors/userUIData-selectors";
-import { useEffect } from "react";
 
 function pickIcon(type: IconButtonProps["type"], themeMode?: ThemeMode) {
   switch (type) {

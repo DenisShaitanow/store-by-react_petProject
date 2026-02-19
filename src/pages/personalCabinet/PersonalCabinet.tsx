@@ -14,26 +14,23 @@ const PersonalCabinet: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const user = useAppSelector(selectUser);
-  const localStorageUser = localStorage.getItem('regData');
+  const localStorageUser = localStorage.getItem("regData");
 
   const parsedLocalStorageUser: RegistrationData | undefined = localStorageUser
-  ? JSON.parse(localStorageUser)
-  : undefined;
-
-  useEffect(() => {
-    console.log(user)
-  }, [user]);
+    ? JSON.parse(localStorageUser)
+    : undefined;
 
   const [personalCabinetData, setPersonalCabinetData] =
     useState<RegistrationData>({
       email: user?.email ?? "",
       password: user?.password || parsedLocalStorageUser?.password || "",
-      name: user?.name || parsedLocalStorageUser?.name || '',
+      name: user?.name || parsedLocalStorageUser?.name || "",
       surname: user?.surname || parsedLocalStorageUser?.surname || "",
       avatar: user?.avatar || parsedLocalStorageUser?.avatar || "",
-      gender: user?.gender  || parsedLocalStorageUser?.gender || "",
-      location: user?.location  || parsedLocalStorageUser?.location || "",
-      birthdayDate: user?.birthdayDate || parsedLocalStorageUser?.birthdayDate || "",
+      gender: user?.gender || parsedLocalStorageUser?.gender || "",
+      location: user?.location || parsedLocalStorageUser?.location || "",
+      birthdayDate:
+        user?.birthdayDate || parsedLocalStorageUser?.birthdayDate || "",
     });
 
   const handleChangeName = (val: string) => {

@@ -7,12 +7,10 @@ export const products: IProduct[] = [
     price: 15000,
     title:
       "Рубашка из премиального хлопка, который выращен в южной америке на высоте 3000м над уровнем моря.",
-    description:
-      "Классическая мужская рубашка.",
+    description: "Классическая мужская рубашка.",
     image:
       "https://avatars.mds.yandex.net/i?id=eb6c5690d507b07c6a3551c0241ddc588f9eb2b5-5858707-images-thumbs&n=13",
-    shortDescription:
-      "Стильный образ.",
+    shortDescription: "Стильный образ.",
     category: "t-shirts",
     sex: "man",
     isLiked: false,

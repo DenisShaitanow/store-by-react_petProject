@@ -9,14 +9,6 @@ export const Footer: FC = () => (
       <Logo />
       <nav className={styles.nav}>
         <div className={styles.navColumn}>
-          <Link to="/about" variant="secondary">
-            О проекте
-          </Link>
-          <Link to="/skills" variant="secondary">
-            Все навыки
-          </Link>
-        </div>
-        <div className={styles.navColumn}>
           <Link to="/contacts" variant="secondary">
             Контакты
           </Link>

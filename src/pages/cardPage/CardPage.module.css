@@ -204,7 +204,7 @@
     max-inline-size: 100%;
     block-size: fit-content;
     max-block-size: 30%;
-    font-size: 26px;
+    font-size: 22px;
     padding: 0;
   }
 
@@ -227,7 +227,7 @@
 
   .regPleaseTransparant {
     position: absolute;
-    top: 93%;
+    top: 95%;
     right: 3%;
     inline-size: 35%;
     font-size: 14px;
@@ -251,13 +251,21 @@
     padding-inline: 3%;
     gap: 7%;
   }
+
+  .regPleaseTransparant {
+    position: absolute;
+    top: 95%;
+    right: 7%;
+    inline-size: 35%;
+    font-size: 14px;
+  }
 }
 
 @media (681px <= width <= 820px) {
   .container {
     flex-direction: column;
     padding: 5%;
-    gap: 14px;
+    gap: 26px;
     border-radius: 37px;
     box-shadow: 0 0 29px var(--accent-color);
     block-size: 80vh;
@@ -289,22 +297,22 @@
     max-inline-size: 100%;
     block-size: fit-content;
     max-block-size: 30%;
-    font-size: 30px;
+    font-size: 22px;
     padding: 0;
   }
 
   .description {
     inline-size: 100%;
     block-size: 70%;
-    font-size: 22px;
+    font-size: 19px;
   }
 
   .button {
     position: absolute;
-    top: 87%;
+    top: 86%;
     right: 5%;
     inline-size: 25%;
-    font-size: 20px !important;
+    font-size: 15px !important;
     padding: 16px 9px;
     height: 42px;
     border-radius: 12px;
@@ -327,6 +335,15 @@
     inline-size: 100%;
     padding-inline: 3%;
     gap: 7%;
+  }
+
+  .regPleaseTransparant {
+    position: absolute;
+    top: 98%;
+    right: 4%;
+    inline-size: 40%;
+    font-size: 14px;
+    text-align: center;
   }
 }
 
@@ -381,7 +398,7 @@
     top: 86%;
     right: 5%;
     inline-size: 25%;
-    font-size: 20px !important;
+    font-size: 14px !important;
     padding: 16px 9px;
     height: 42px;
     border-radius: 12px;
@@ -405,13 +422,22 @@
     padding-inline: 3%;
     gap: 4%;
   }
+
+  .regPleaseTransparant {
+    position: absolute;
+    top: 98%;
+    right: 8%;
+    inline-size: 40%;
+    font-size: 10px;
+    text-align: center;
+  }
 }
 
 @media (441px <= width <= 540px) {
   .container {
     flex-direction: column;
     padding: 5%;
-    gap: 14px;
+    gap: 20px;
     border-radius: 37px;
     box-shadow: 0 0 29px var(--accent-color);
     block-size: 80vh;
@@ -458,7 +484,7 @@
     top: 86%;
     right: 5%;
     inline-size: 25%;
-    font-size: 16px !important;
+    font-size: 13px !important;
     padding: 12px 7px;
     height: 36px;
     border-radius: 10px;
@@ -481,6 +507,15 @@
     inline-size: 100%;
     padding-inline: 3%;
     gap: 4%;
+  }
+
+  .regPleaseTransparant {
+    position: absolute;
+    top: 96%;
+    right: 8%;
+    inline-size: 40%;
+    font-size: 10px;
+    text-align: center;
   }
 }
 
@@ -529,7 +564,7 @@
   .description {
     inline-size: 100%;
     block-size: 70%;
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .button {
@@ -537,7 +572,7 @@
     top: 85%;
     right: 5%;
     inline-size: 25%;
-    font-size: 14px !important;
+    font-size: 10px !important;
     padding: 12px 7px;
     height: 36px;
     border-radius: 10px;
@@ -560,5 +595,14 @@
     inline-size: 100%;
     padding-inline: 3%;
     gap: 4%;
+  }
+
+  .regPleaseTransparant {
+    position: absolute;
+    top: 95%;
+    right: 8%;
+    inline-size: 40%;
+    font-size: 8px;
+    text-align: center;
   }
 }

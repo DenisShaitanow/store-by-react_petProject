@@ -31,8 +31,6 @@
   transition: border-color 0.2s ease;
 }
 
-
-
 /* Styles when there is an error */
 
 .selectError {
@@ -41,7 +39,6 @@
 }
 
 /* Open state */
-
 
 .borderDone {
   top: 28px;
@@ -165,7 +162,6 @@
   width: 100%;
 }
 
-
 @media (400px <= width <= 500px) {
   .container {
     font-size: 12px;
@@ -176,8 +172,6 @@
     height: 14px;
   }
 }
-
-
 
 @media (width <= 399px) {
   .container {
@@ -192,5 +186,4 @@
     width: 13px;
     height: 13px;
   }
-
-}       
+}

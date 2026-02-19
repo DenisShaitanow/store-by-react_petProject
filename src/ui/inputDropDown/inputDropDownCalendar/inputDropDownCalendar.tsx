@@ -45,7 +45,7 @@ export const InputDropDownCalendar: FC<InputDropDownCalendarProps> = ({
     };
   }, []);
 
-  const [selectDate, setSelectDate] = useState<Date | null>( value || null); // Дата, выбранная в календаре
+  const [selectDate, setSelectDate] = useState<Date | null>(value || null); // Дата, выбранная в календаре
   const [isOpen, setIsOpen] = useState(false); // Флаг открытия окна календаря
   const [manualInput, setManualInput] = useState<string>(""); // Ручной ввод даты
 

@@ -122,7 +122,7 @@ const HomePage: FC = () => {
       if (
         bottomReached &&
         !isLoadingMore &&
-        productsToShow.length < products.length
+        productsToShow.length < filteredProducts.length
       ) {
         setIsLoadingMore(true);
 

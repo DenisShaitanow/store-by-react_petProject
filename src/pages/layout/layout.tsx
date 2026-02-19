@@ -22,6 +22,7 @@ function Layout() {
   const isRegistrationPage =
     location.pathname === "/registration" ||
     location.pathname === "/loginClient";
+
   const isAuth: boolean = useAppSelector(selectIsAuth) || false;
 
   const user = useAppSelector(selectUser);

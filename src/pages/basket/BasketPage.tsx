@@ -1,5 +1,5 @@
 import styles from "./BasketPage.module.css";
-import {  type FC } from "react";
+import { type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { ButtonUI } from "../../ui/button";
 import { useAppDispatch, useAppSelector } from "../../services/hooks";
@@ -26,7 +26,11 @@ const BasketPage: FC = () => {
         <>
           <div className={styles.cardList}>
             {productsInBasket.map((card) => (
-              <ProductCardInBasket key={card.id} {...card} />
+              <ProductCardInBasket
+                key={card.item.id}
+                card={card.item}
+                count={card.count}
+              />
             ))}
           </div>
           <ButtonUI

@@ -1,0 +1,114 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  margin-top: 10%;
+  margin-inline: auto;
+  inline-size: 75%;
+  background-color: rgba(
+    var(--accent-color-r),
+    var(--accent-color-g),
+    var(--accent-color-b),
+    0.2
+  );
+  block-size: fit-content;
+  padding: 50px;
+  border-radius: 40px;
+}
+
+.svg {
+  width: 120px;
+  height: 120px;
+}
+
+.bg {
+  fill: var(--accent-color);
+}
+
+.symbol {
+  fill: var(--background-page-color);
+}
+
+.icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  inline-size: fit-content;
+  block-size: fit-content;
+  margin-top: 10px;
+}
+
+.text {
+  display: block;
+  inline-size: fit-content;
+  block-size: fit-content;
+  padding-block: 40px;
+  padding-inline: 80px;
+  color: var(--text-color);
+  font-weight: var(--font-weight-body);
+  font-size: var(--font-size-body);
+  font-family: var(--font-family-logo);
+  line-height: var(--line-height-body);
+  text-align: justify;
+  text-indent: 1em;
+}
+
+.button {
+  padding: 16px 13px !important;
+}
+
+@media (701px <= width < 950px) {
+  .svg {
+    width: 80px;
+    height: 80px;
+  }
+
+  .text {
+    font-size: 14px;
+    padding-block: 20px;
+    padding-inline: 25px;
+  }
+}
+
+@media (536px <= width <= 700px) {
+  .container {
+    inline-size: 75%;
+    padding: 30px;
+    border-radius: 30px;
+  }
+
+  .svg {
+    width: 50px;
+    height: 50px;
+  }
+
+  .text {
+    font-size: 13px;
+    padding-block: 15px;
+    padding-inline: 18px;
+  }
+}
+
+@media (width <= 535px) {
+  .container {
+    inline-size: 75%;
+    padding: 15px;
+    border-radius: 25px;
+  }
+
+  .svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .text {
+    font-size: 11px;
+    padding-block: 12px;
+    padding-inline: 14px;
+  }
+
+  .button {
+    padding: 8px 6px !important;
+  }
+}

@@ -8,7 +8,7 @@ interface IUserState {
   products: IProduct[];
   favoriteItems: string[];
   notifications: { id: string; text: string }[];
-  basket: IProduct[];
+  basket: Array<{ item: IProduct; count: number }>;
   error: string;
   orders: string[];
   errorOrder: string;
@@ -61,23 +61,31 @@ const userUIDataSlice = createSlice({
       localStorage.setItem("products", JSON.stringify(state.products));
     },
     addToBusket: (state, action: PayloadAction<IProduct>) => {
-      state.basket = [...state.basket, action.payload];
-      localStorage.setItem(
-        "basket",
-        JSON.stringify([...state.basket, action.payload]),
+      const existingItem = state.basket.find(
+        (unit) => unit.item.id === action.payload.id,
       );
+      existingItem
+        ? existingItem.count++
+        : state.basket.push({ item: action.payload, count: 1 });
+      localStorage.setItem("basket", JSON.stringify(state.basket));
     },
     removeFromBusket: (state, action: PayloadAction<IProduct>) => {
-      state.basket = state.basket.filter(
-        (item) => item.id !== action.payload.id,
+      const existingItem = state.basket.find(
+        (unit) => unit.item.id === action.payload.id,
       );
-      localStorage.setItem(
-        "basket",
-        JSON.stringify(
-          state.basket.filter((item) => item.id !== action.payload.id),
-        ),
-      );
+      if (existingItem) {
+        if (existingItem.count > 1) {
+          existingItem.count--;
+        } else {
+          console.log("aaaa");
+          state.basket = state.basket.filter(
+            (item) => item.item.id !== action.payload.id,
+          );
+        }
+        localStorage.setItem("basket", JSON.stringify(state.basket));
+      }
     },
+
     removeFromFavoriteItems: (state, action: PayloadAction<string>) => {
       state.favoriteItems = state.favoriteItems.filter(
         (item) => item !== action.payload,

@@ -19,3 +19,8 @@ export interface IProduct {
   className?: string;
   isLiked: boolean;
 }
+
+export interface Props {
+  card: IProduct;
+  count: number;
+}
