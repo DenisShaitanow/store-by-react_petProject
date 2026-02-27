@@ -70,5 +70,5 @@ export const router = createBrowserRouter(
       element: <PageNotFound />,
     },
   ],
-  { basename: "/store-by-react" },
+  { basename: "/store-by-react_petProject" },
 );
