@@ -1,73 +1,7 @@
-# React + TypeScript + Vite
+# Проект store-by-react_petProject.
+## Проект представляет собой интернет магазин по продажи одежды и аксесуаров. Ссылки на картинки и описание товаров, местами придуманы мною, местами сгенерированы ИИ. В приложении пользователь должен пройти регистрацию, или аутентификацию. Далее ему становится доступена возможность добавить товары в корзину, добавить их в "Избранное", изменить цвет оформления, оформить заказ в корзине, а также изменить данные в личном кабинете. На главной странице реализованы фильтры по категориям и полу, а также бесконечная прокрутка страницы вниз.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Для запуска проекта, вам будет необходимо скачать репозиторий, установить все библиотеки командой в терминале "npm install", далее нужно будет ввести команду "npm run dev".
+## Также в проекте реализованы автоматические тесты на библиотеке Cypress. Для того, чтобы посмотреть их прохождение, вам будет нужно ввести команду "npm run cypress:open", после чего запустится приложение в браузере. В нем нужно будет выбрать тесты. Регистрация или регистрация + покупка, далее наблюдать прохождение автоматического теста в реальном времени. 
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
