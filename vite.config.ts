@@ -44,8 +44,7 @@ export default defineConfig({
     }, {
       extends: true,
       plugins: [
-      // The plugin will run tests for the stories defined in your Storybook config
-      // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
+
       storybookTest({
         configDir: path.join(dirname, '.storybook')
       })],
@@ -63,7 +62,7 @@ export default defineConfig({
       }
     }]
   },
-  base: '/store-by-react/', // Ваш базовый путь для проекта на GitHub Pages
+  base: '/store-by-react_petProject/', // базовый путь для проекта на GitHub Pages
   build: {
     outDir: 'dist', // Директория, куда будет складываться сборка
   },
