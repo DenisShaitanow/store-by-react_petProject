@@ -9,8 +9,10 @@ import {
   updateUser,
   changeDataInPersonalCabinet,
 } from "../../thunks/user";
+import { act } from "react";
 
 interface IUserState {
+  id: string
   user: RegistrationData | null;
   isAuth: boolean;
   isAuthChecked: boolean;
@@ -19,6 +21,7 @@ interface IUserState {
 }
 
 export const initialState: IUserState = {
+  id: '',
   user: null,
   isAuth: false,
   isAuthChecked: false,
@@ -55,15 +58,27 @@ const userSlice = createSlice({
 
       // login
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload.user;
+        state.id = action.payload.id
         state.isAuth = true;
+        state.loading = false;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        
+        state.isAuth = false;
         state.loading = false;
       })
 
       // register
       .addCase(registerUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
+        state.id = action.payload.id;
         state.isAuth = true;
+        state.loading = false;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        
+        state.isAuth = false;
         state.loading = false;
       })
 

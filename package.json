@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+     "startServer": "tsx my-server/server.ts",
     "dev": "vite",
     "build": "tsc --noEmitOnError && vite build",
     "lint": "eslint .",

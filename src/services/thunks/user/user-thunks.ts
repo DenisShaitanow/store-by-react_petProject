@@ -15,6 +15,7 @@ import { type RegistrationData } from "../../../types";
 export const registerUser = createAsyncThunk<
   {
     user: RegistrationData | null;
+    id: string
   },
   RegistrationData
 >("user/register", async (data, { rejectWithValue }) => {
@@ -25,7 +26,7 @@ export const registerUser = createAsyncThunk<
       : response.accessToken;
     setCookie("accessToken", accessToken);
     localStorage.setItem("refreshToken", response.refreshToken);
-    return { user: response.user };
+    return { user: response.user, id: response.id };
   } catch (err) {
     return rejectWithValue("Ошибка при регистрации");
   }
@@ -53,19 +54,27 @@ export const changeDataInPersonalCabinet = createAsyncThunk<
 
 // Логин пользователя
 export const loginUser = createAsyncThunk<
-  RegistrationData,
-  { email: string; password: string }
->(
+  {
+    user: RegistrationData | null;
+    id: string
+  },
+    { email: string; password: string }
+  >(
   "user/login",
   async (data: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await mockedLoginUserApi(data);
-      localStorage.setItem("refreshToken", response.refreshToken);
+      if (response.success) {
+        localStorage.setItem("refreshToken", response.refreshToken);
       const accessToken = response.accessToken.startsWith("Bearer ")
         ? response.accessToken.slice(7)
         : response.accessToken;
-      setCookie("accessToken", accessToken);
-      return response.user;
+        setCookie("accessToken", accessToken);
+        return {user: response.user, id: response.id};
+      } else {
+        return rejectWithValue("Неверный email или пароль");
+      }
+      
     } catch (err) {
       return rejectWithValue("Ошибка при входе");
     }

@@ -7,10 +7,23 @@ import {
 } from "../types";
 import { products as defaultProducts } from "../constants/constants";
 
-/*
-const URL = process.env.BURGER_API_URL;
-*/
+const API_URL = import.meta.env.VITE_API_URL;
 
+
+export const mockedGetProductsApi = async (): Promise<IProduct[]> => {
+  const response = await fetch(`${API_URL}/products`);
+  
+  if (!response.ok) {
+    throw new Error(`Error code: ${response.status}`);
+  }
+  
+  const products = (await response.json()).data;
+  return products;
+}
+
+
+
+/*
 export const mockedGetProductsApi = async (): Promise<IProduct[]> => {
   return new Promise((resolve, reject) => {
     const storedData = localStorage.getItem("products");
@@ -37,6 +50,7 @@ export const mockedGetProductsApi = async (): Promise<IProduct[]> => {
     }
   });
 };
+*/
 
 const checkResponse = <T>(res: Response): Promise<T> =>
   res.ok ? res.json() : res.json().then((err) => Promise.reject(err));
@@ -101,11 +115,12 @@ export const fetchWithRefresh = async <T>(
 const fakeAccessToken = "fake_access_token";
 const fakeRefreshToken = "fake_refresh_token";
 
-export function mockedRegisterUserApi(data: RegistrationData): Promise<{
+/*export function mockedRegisterUserApi(data: RegistrationData): Promise<{
   success: boolean;
   refreshToken: string;
   accessToken: string;
   user: RegistrationData;
+  
 }> {
   const fakeRegistrationData = {
     email: data.email,
@@ -129,6 +144,41 @@ export function mockedRegisterUserApi(data: RegistrationData): Promise<{
     // Здесь можем добавить проверку данных или любые условия
     resolve(mockSuccessResponse); // Возвращаем заготовленную структуру
   });
+}*/
+
+// ServerFunction
+export function mockedRegisterUserApi(data: RegistrationData): Promise<{
+  success: boolean;
+  refreshToken: string;
+  accessToken: string;
+  user: RegistrationData;
+  id: string;
+  
+}> {
+  
+  return fetch(`${API_URL}/registerUser`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Ошибка регистрации');
+      }
+      return response.json();
+    })
+    .then((data) => ({
+      success: data.success,
+      refreshToken: data.refreshToken,
+      accessToken: data.accessToken,
+      user: data.user,
+      id: data.id
+    }));
+    
+  
 }
 
 export function changeDataInPersonalCabinetApi(
@@ -221,6 +271,7 @@ export const mockedGetUserApi = async (
   return parsedData; // Возвращаем распарсенный объект
 };
 
+/*
 export const mockedLoginUserApi = async (data: {
   email: string;
   password: string;
@@ -245,7 +296,48 @@ export const mockedLoginUserApi = async (data: {
   };
 
   return mockSuccessResponse; // Возвращаем объект пользователя при удачном входе
-};
+};*/
+
+// Server function
+export const mockedLoginUserApi = async (data: {
+  email: string;
+  password: string;
+}): Promise<{
+  success: boolean;
+  refreshToken: string;
+  accessToken: string;
+  user: RegistrationData;
+  id: string;
+  
+}> => {
+
+
+  return fetch(`${API_URL}/LoginUser`, {
+    method: 'POST',
+    headers:  {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data)
+  })
+  .then(async (response) => {
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Ошибка регистрации');
+    }
+    return response.json();
+  })
+  .then((data) => ({
+    success: data.success,
+    refreshToken: data.refreshToken,
+    accessToken: data.accessToken,
+    user: data.user,
+    id: data.id
+  }));
+
+
+
+}
+
 
 type TUserResponse = TServerResponse<{ user: RegistrationData }>;
 
