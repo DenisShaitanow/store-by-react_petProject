@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type Action, type PayloadAction } from "@reduxjs/toolkit";
 import { type IProduct } from "../../types/index";
 import { getProducts, doOrder } from "../thunks/userUIData/userUIData-thunks";
 import { act } from "react";
@@ -40,7 +40,7 @@ const userUIDataSlice = createSlice({
     resetBusket: (state) => {
       state.basket = [];
     },
-    addAndDeleteToFavoriteItems: (state, action) => {
+    addAndDeleteToFavoriteItems: (state, action: PayloadAction<string>) => {
       const productId = action.payload;
       const indexOfProduct = state.products.findIndex(
         (product) => product.id === productId,

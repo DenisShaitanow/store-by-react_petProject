@@ -93,15 +93,12 @@ app.post('/api/registerUser', (req, res) => {
    
 })
 
-app.post('/api/LoginUser', (req: {
-  email: string;
-  password: string;
-}, res) => {
+app.post('/api/LoginUser', (req, res) => {
 
   const fakeAccessToken = "fake_access_token";
   const fakeRefreshToken = "fake_refresh_token";
 
-    const user = BASE.find(item => item.profile.email === req.email && item.profile.password === req.password)
+    const user = BASE.find(item => item.profile.email === req.body.email && item.profile.password === req.body.password)
 
   if (user) {
     res.status(200).json({
