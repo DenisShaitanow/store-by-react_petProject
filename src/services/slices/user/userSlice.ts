@@ -20,8 +20,12 @@ interface IUserState {
   error: string | null;
 }
 
+
+const userId = localStorage.getItem('userId');
+const parsedUserId = userId ? JSON.parse(userId).userId : '';
+
 export const initialState: IUserState = {
-  id: '',
+  id:  parsedUserId,
   user: null,
   isAuth: false,
   isAuthChecked: false,

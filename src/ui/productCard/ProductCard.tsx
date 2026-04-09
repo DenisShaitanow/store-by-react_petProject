@@ -5,7 +5,7 @@ import type { FC } from "react";
 import styles from "./ProductCard.module.css";
 import type { IProduct } from "./type";
 import { useAppDispatch } from "../..//services/hooks";
-import { addAndDeleteToFavoriteItems } from "../../services/slices/userUIData";
+import { toggleLike } from "../../services/thunks/userUIData/userUIData-thunks";
 /*`../assets/${props.image}`*/
 
 export const ProductCard = forwardRef<HTMLDivElement, IProduct>(
@@ -24,7 +24,7 @@ export const ProductCard = forwardRef<HTMLDivElement, IProduct>(
     }
 
     function handleLike() {
-      dispatch(addAndDeleteToFavoriteItems(props.id));
+      dispatch(toggleLike(props.id));
       setLike(!like);
     }
 

@@ -10,14 +10,21 @@ import { products as defaultProducts } from "../constants/constants";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
-export const mockedGetProductsApi = async (): Promise<IProduct[]> => {
-  const response = await fetch(`${API_URL}/products`);
-  
+export const mockedGetProductsApi = async (data: {userId: string}): Promise<IProduct[]> => {
+  const response = await fetch(`${API_URL}/products`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(data)
+  })
+
   if (!response.ok) {
     throw new Error(`Error code: ${response.status}`);
   }
   
   const products = (await response.json()).data;
+  await new Promise(resolve => setTimeout(resolve, 1000));
   return products;
 }
 
@@ -170,13 +177,15 @@ export function mockedRegisterUserApi(data: RegistrationData): Promise<{
       }
       return response.json();
     })
-    .then((data) => ({
+    .then((data) => {
+      localStorage.setItem('userId', JSON.stringify({userId: data.id}))
+      return {
       success: data.success,
       refreshToken: data.refreshToken,
       accessToken: data.accessToken,
       user: data.user,
       id: data.id
-    }));
+    }});
     
   
 }

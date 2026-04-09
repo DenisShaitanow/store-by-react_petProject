@@ -8,11 +8,17 @@ import { type TRootState  } from '../../store/store';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const getProducts = createAsyncThunk<IProduct[]>(
+export const getProducts = createAsyncThunk<IProduct[], void, { state: TRootState }>(
   "getProducts",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
+
+    const userId = selectIdUser(getState()) || '';
+
+    const userIdLocal = localStorage.getItem('userId');
+    const parsedUserIdLocal = userIdLocal ? JSON.parse(userIdLocal).userId : '';
+
     try {
-      const products = await mockedGetProductsApi();
+      const products = await mockedGetProductsApi({userId: userId || parsedUserIdLocal || ''});
       return products;
     } catch (err) {
       return rejectWithValue("Ошибка на сервере, нет товаров.");
@@ -40,7 +46,7 @@ export const toggleLike = createAsyncThunk<
   'toggleLike', 
   async (productId, { dispatch, getState }) => {  
     
-    const userId = selectIdUser(getState()); 
+    const userId = selectIdUser(getState()) || ''; 
     
     dispatch(addAndDeleteToFavoriteItems(productId));
     
