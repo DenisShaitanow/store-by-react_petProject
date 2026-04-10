@@ -10,14 +10,8 @@ import { products as defaultProducts } from "../constants/constants";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
-export const mockedGetProductsApi = async (data: {userId: string}): Promise<IProduct[]> => {
-  const response = await fetch(`${API_URL}/products`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json;charset=utf-8",
-    },
-    body: JSON.stringify(data)
-  })
+export const mockedGetProductsApi = async (): Promise<IProduct[]> => {
+  const response = await fetch(`${API_URL}/products`)
 
   if (!response.ok) {
     throw new Error(`Error code: ${response.status}`);
@@ -94,7 +88,7 @@ export const refreshToken = (): Promise<TRefreshResponse> =>
         : refreshData.accessToken;
       setCookie("accessToken", accessToken);
       return refreshData;
-    });
+});
 
 export const fetchWithRefresh = async <T>(
   url: RequestInfo,
@@ -180,11 +174,11 @@ export function mockedRegisterUserApi(data: RegistrationData): Promise<{
     .then((data) => {
       localStorage.setItem('userId', JSON.stringify({userId: data.id}))
       return {
-      success: data.success,
-      refreshToken: data.refreshToken,
-      accessToken: data.accessToken,
-      user: data.user,
-      id: data.id
+        success: data.success,
+        refreshToken: data.refreshToken,
+        accessToken: data.accessToken,
+        user: data.user,
+        id: data.id
     }});
     
   
@@ -423,3 +417,29 @@ export const updateUserApi = (user: Partial<TRegisterData>) =>
     body: JSON.stringify(user)
 });
 */
+
+
+export const toggleLikeApi = async (id: Record<'productId', string>): Promise<{success: boolean}> => {
+  try {
+    const response = await fetch(`${API_URL}/toogleLikeCard`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify(id),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Ошибка регистрации like');
+    }
+    
+    const data = await response.json();
+    return data;
+    
+  } catch (error) {
+    
+    throw error;
+  }
+
+}

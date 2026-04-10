@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { IProduct, IFormOrderData } from "src/types";
-import { mockedGetProductsApi, mockedDoOrder } from "../../../services/api";
+import { mockedGetProductsApi, mockedDoOrder, toggleLikeApi } from "../../../services/api";
 import { addAndDeleteToFavoriteItems } from '../../slices/userUIData';
 import { useAppDispatch, useAppSelector  }  from '../../hooks/hooks';
 import { selectIdUser  } from '../../selectors/user-selectors/user-selectors';
@@ -18,7 +18,7 @@ export const getProducts = createAsyncThunk<IProduct[], void, { state: TRootStat
     const parsedUserIdLocal = userIdLocal ? JSON.parse(userIdLocal).userId : '';
 
     try {
-      const products = await mockedGetProductsApi({userId: userId || parsedUserIdLocal || ''});
+      const products = await mockedGetProductsApi();
       return products;
     } catch (err) {
       return rejectWithValue("Ошибка на сервере, нет товаров.");
@@ -44,32 +44,17 @@ export const toggleLike = createAsyncThunk<
   { state: TRootState }
 >(
   'toggleLike', 
-  async (productId, { dispatch, getState }) => {  
-    
-    const userId = selectIdUser(getState()) || ''; 
-    
-    dispatch(addAndDeleteToFavoriteItems(productId));
+  async (productId, { dispatch }) => {  
     
     try {
-      const response = await fetch(`${API_URL}/toogleLikeCard`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json;charset=utf-8",
-        },
-        body: JSON.stringify({ userId: userId, id: productId }),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Ошибка регистрации like');
+      const data = await toggleLikeApi(productId);
+      const success = data.success;
+      if (success ) {
+        dispatch(addAndDeleteToFavoriteItems(productId));
       }
+    } catch (err) {
       
-      const data = await response.json();
-      return data;
-      
-    } catch (error) {
-      dispatch(addAndDeleteToFavoriteItems(productId));
-      throw error;
+      console.error(err)
     }
   }
 );
