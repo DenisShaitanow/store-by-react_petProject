@@ -13,6 +13,12 @@
   background-color: var(--background-page-color);
 }
 
+.spinner {
+  display: block;
+  position: absolute !important;
+  margin-left: 50px;
+}
+
 @media (769px <= width <= 1025px) {
   .layout {
     gap: 40px;

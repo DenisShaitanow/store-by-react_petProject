@@ -78,12 +78,12 @@ export const loginUser = createAsyncThunk<
 );
 
 // Проверка авторизации пользователя
-export const checkUserAuth = createAsyncThunk<RegistrationData, string>(
-  "user/checkAuth",
+export const checkUserAuth = createAsyncThunk(
+  "user/checkUserAuth",
   async (_, { rejectWithValue }) => {
     try {
-      const accessToken = getCookie("accessToken");
-      const data = await mockedGetUserApi(accessToken || "");
+      console.log(' Проверка авторизации пользователя')
+      const data = await mockedGetUserApi();
       return data;
     } catch (err) {
       return rejectWithValue("Не авторизован");

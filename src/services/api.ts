@@ -5,13 +5,17 @@ import {
   type IProduct,
   type RegistrationData,
 } from "../types";
-import { products as defaultProducts } from "../constants/constants";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 
 export const mockedGetProductsApi = async (): Promise<IProduct[]> => {
-  const response = await fetch(`${API_URL}/products`)
+  const response = await fetch(`${API_URL}/products`,
+    {
+      credentials: 'include' 
+    }
+  )
 
   if (!response.ok) {
     throw new Error(`Error code: ${response.status}`);
@@ -159,6 +163,7 @@ export function mockedRegisterUserApi(data: RegistrationData): Promise<{
   
   return fetch(`${API_URL}/registerUser`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -182,6 +187,42 @@ export function mockedRegisterUserApi(data: RegistrationData): Promise<{
     }});
     
   
+}
+
+interface IServerUser {
+ 
+  id: string;
+  // Профиль
+  profile: RegistrationData;
+  refreshToken: string;
+  dateCreateRefreshToken: number;
+  successToken: string;
+  // Пользовательские данные (аналог клиентского IUserState)
+  basket: Array<{ item: IProduct; count: number }>;
+  favoriteItems: string[]; // массив id продуктов
+  orders: string[];
+  notifications: { id: string; text: string }[];
+
+}
+
+// Server function
+export async function mockedGetUserApi(): Promise<{
+  isAuthenticated: boolean;
+  user: IServerUser
+}> {
+
+  const response = await fetch(`${API_URL}/auth/me`, {
+    credentials: 'include',
+  })
+
+  if (!response.ok) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    throw new Error('Ошибка сверки аксесс-токена')
+  }
+
+  const data = response.json()
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return data;
 }
 
 export function changeDataInPersonalCabinetApi(
@@ -264,7 +305,7 @@ export const logoutApi = () =>
 }).then((res) => checkResponse<TServerResponse<{}>>(res));
 */
 
-export const mockedGetUserApi = async (
+/*export const mockedGetUserApi = async (
   accessToken: string,
 ): Promise<RegistrationData> => {
   const storedData = localStorage.getItem("regData"); // Извлекаем данные единожды
@@ -272,7 +313,7 @@ export const mockedGetUserApi = async (
 
   const parsedData = JSON.parse(storedData!); // Парсим строку в объект
   return parsedData; // Возвращаем распарсенный объект
-};
+};*/
 
 /*
 export const mockedLoginUserApi = async (data: {
@@ -317,6 +358,7 @@ export const mockedLoginUserApi = async (data: {
 
   return fetch(`${API_URL}/LoginUser`, {
     method: 'POST',
+    credentials: 'include',
     headers:  {
       'Content-Type': 'application/json',
     },
@@ -423,6 +465,7 @@ export const toggleLikeApi = async (id: Record<'productId', string>): Promise<{s
   try {
     const response = await fetch(`${API_URL}/toogleLikeCard`, {
       method: 'POST',
+      credentials: 'include',  
       headers: {
         "Content-Type": "application/json;charset=utf-8",
       },

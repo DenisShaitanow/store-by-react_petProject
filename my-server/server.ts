@@ -36,7 +36,10 @@ let BASE: IServerUser[] = [];
 
 const app = express();
 
-app.use(cors()); // Разрешаем запросы с любых доменов
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true // РАЗРЕШАЕМ cookie
+}));
 app.use(express.json()); // Для обработки JSON-запросов
 app.use(cookieParser());
 
@@ -87,12 +90,38 @@ const authMiddleware = (req, res, next) => {
   next();
 };
 
+app.get('/api/auth/me', (req, res: Response<{auth: boolean, user: IServerUser}>) => {
+  const successToken = req.cookies.successToken;
+  
+  if (!successToken) {
+    return res.status(401).json({ 
+      isAuthenticated: false, 
+      user: null 
+    });
+  }
+  
+  const user = BASE.find(u => u.successToken === successToken);
+  
+  if (user) {
+    res.status(200).json({
+      isAuthenticated: true,
+      user: user, 
+    });
+  } else {
+    res.status(401).json({
+      isAuthenticated: false,
+      user: null
+    });
+  }
+});
+
 
 
 
 app.get('/api/products', (req, res) => {
 
   const successToken = req.cookies.successToken;
+  console.log(successToken);
   
   
   

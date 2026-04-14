@@ -46,11 +46,12 @@ const userSlice = createSlice({
     builder
       // checkAuth
       .addCase(checkUserAuth.pending, (state) => {
+        console.log('start')
         state.loading = true;
         state.error = null;
       })
       .addCase(checkUserAuth.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload.user.profile;
         state.isAuth = true;
         state.isAuthChecked = true;
         state.loading = false;

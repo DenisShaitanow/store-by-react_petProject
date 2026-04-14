@@ -7,9 +7,10 @@ import {
   useRef,
   useLayoutEffect,
   useCallback,
-} from "react";
+} from "react"; 
 import { useAppDispatch, useAppSelector } from "../../services/hooks";
 import { getProducts } from "../../services/thunks/userUIData/userUIData-thunks";
+import { checkUserAuth } from '../../services/thunks/user/user-thunks';
 import {
   selectProducts,
   selectLoadingProducts,
@@ -62,9 +63,7 @@ const HomePage: FC = () => {
     return cardsPerRow * 6;
   };
 
-  useEffect(() => {
-    dispatch(getProducts());
-  }, [dispatch]);
+
 
   const products: IProduct[] = useAppSelector(selectProducts);
 
@@ -215,9 +214,8 @@ const HomePage: FC = () => {
         </div>
         <span className={styles.greyLine}></span>
         <div className={styles.products} ref={productsContainer}>
-          {isLoading ? (
-            <SpinnerPulse className={styles.spinner} />
-          ) : (
+          
+          
             <>
               {/* Первая карточка с установленным рефом */}
               <ProductCard
@@ -252,7 +250,7 @@ const HomePage: FC = () => {
                 />
               ))}
             </>
-          )}
+          
         </div>
       </div>
       {isLoadingMore && (

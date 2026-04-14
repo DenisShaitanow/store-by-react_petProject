@@ -47,7 +47,7 @@ export const toggleLike = createAsyncThunk<
   async (productId, { dispatch }) => {  
     
     try {
-      const data = await toggleLikeApi(productId);
+      const data = await toggleLikeApi({productId: productId});
       const success = data.success;
       if (success ) {
         dispatch(addAndDeleteToFavoriteItems(productId));

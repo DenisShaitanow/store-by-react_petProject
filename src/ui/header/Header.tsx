@@ -14,6 +14,12 @@ import type { RegistrationData } from "src/types";
 import { useEffect, useContext } from "react";
 import { ThemeContext } from "../../context/themeContext/ThemeContext";
 
+
+
+import {  useAppSelector } from "../../services/hooks";
+
+import { selectUserLoading } from '../../services/selectors/user-selectors/user-selectors';
+
 export const HeaderUI = ({
   isModal,
   isAuth,
@@ -105,7 +111,7 @@ export const HeaderUI = ({
     );
 
   return (
-    <div className={styles.header}>
+    <div className={`${styles.header}`}>
       <div
         data-cy={"headerLogo"}
         className={styles.logoContainer}
