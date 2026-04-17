@@ -10,32 +10,30 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const getProducts = createAsyncThunk<IProduct[], void, { state: TRootState }>(
   "getProducts",
-  async (_, { rejectWithValue, getState }) => {
-
-    const userId = selectIdUser(getState()) || '';
-
-    const userIdLocal = localStorage.getItem('userId');
-    const parsedUserIdLocal = userIdLocal ? JSON.parse(userIdLocal).userId : '';
+  async (_, { rejectWithValue}) => {
 
     try {
       const products = await mockedGetProductsApi();
       return products;
     } catch (err) {
-      return rejectWithValue("Ошибка на сервере, нет товаров.");
-    }
+      
+            return rejectWithValue('Token expired, please try again');
+          }  
+    
   },
 );
 
 export const doOrder = createAsyncThunk<string, IFormOrderData>(
   "doOrder",
-  async (data, { rejectWithValue }) => {
+  async (data, { rejectWithValue}) => {
     try {
       const order = await mockedDoOrder(data);
+      console.log(order)
       return order;
     } catch (err) {
-      return rejectWithValue("Ошибка на сервере при создании заказа.");
-    }
-  },
+      return rejectWithValue('Error order')
+  }
+}
 );
 
 export const toggleLike = createAsyncThunk<

@@ -58,7 +58,6 @@ const userUIDataSlice = createSlice({
           state.favoriteItems.push(productId);
         }
       }
-      localStorage.setItem("products", JSON.stringify(state.products));
     },
     addToBusket: (state, action: PayloadAction<IProduct>) => {
       const existingItem = state.basket.find(

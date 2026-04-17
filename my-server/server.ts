@@ -6,11 +6,14 @@ import cookieParser from 'cookie-parser';
 import { products } from '../src/constants/constants.js';
 import { Request, Response } from 'express';
 
+
+
 import {
   type IFormOrderData,
   type IProduct,
   type RegistrationData,
 } from "../src/types";
+import { error } from 'console';
 
 interface IServerUser {
  
@@ -23,7 +26,7 @@ interface IServerUser {
   // Пользовательские данные (аналог клиентского IUserState)
   basket: Array<{ item: IProduct; count: number }>;
   favoriteItems: string[]; // массив id продуктов
-  orders: string[];
+  orders: {order: string, formData: {}}[];
   notifications: { id: string; text: string }[];
 
 }
@@ -78,7 +81,7 @@ const authMiddleware = (req, res, next) => {
   if (user.dateCreateRefreshToken && user.dateCreateRefreshToken*30 * 24 * 60 * 60 * 1000 < Date.now()) {
     return res.status(401).json({ 
       success: false, 
-      error: 'Access token expired' 
+      error: 'Refresh token expired' 
     });
   }
   
@@ -121,10 +124,6 @@ app.get('/api/auth/me', (req, res: Response<{auth: boolean, user: IServerUser}>)
 app.get('/api/products', (req, res) => {
 
   const successToken = req.cookies.successToken;
-  console.log(successToken);
-  
-  
-  
   
   const user = BASE.find(u => u.successToken === successToken);
   const userAccessTokenBase = user?.successToken;
@@ -152,7 +151,7 @@ app.get('/api/products', (req, res) => {
 });
 
 
-app.post('/api/registerUser', (req, res) => {
+app.post('/api/registerUser', (req: Request<{}, {}, RegistrationData>, res) => {
   
   const fakeSuccessToken = uuidv4();
   const fakeRefreshToken = uuidv4();
@@ -160,11 +159,22 @@ app.post('/api/registerUser', (req, res) => {
   const userId = uuidv4();
 
   res.cookie('successToken', fakeSuccessToken, {
-    maxAge: 900000, // живет 15 минут
+    maxAge: 18000000, 
     httpOnly: true
   });
 
   if (req.body) {
+    const user = BASE.find(item => item.profile.email === req.body.email)
+    if (user) {
+      res.status(200).json({
+        success: false,
+        refreshToken: '',
+        accessToken: '',
+        user: {},
+        id: '',
+        userAlreadyReg: true
+      })
+    }
     const newUser: IServerUser = {
       id: userId,
       profile: req.body,
@@ -184,7 +194,8 @@ app.post('/api/registerUser', (req, res) => {
       refreshToken: fakeRefreshToken,
       accessToken: `Bearer ${fakeSuccessToken}`,
       user: newUser.profile,
-      id: newUser.id
+      id: newUser.id,
+      userAlreadyReg: false
     })
   } else {
     res.status(200).json({
@@ -192,7 +203,8 @@ app.post('/api/registerUser', (req, res) => {
       refreshToken: '',
       accessToken: '',
       user: {},
-      id: ''
+      id: '',
+      userAlreadyReg: false
     })
   }
 
@@ -216,9 +228,10 @@ app.post('/api/LoginUser', (req, res  ) => {
   if (user) {
     user.successToken = fakeSuccessToken;
     user.refreshToken = fakeRefreshToken;
+    user.dateCreateRefreshToken = dateCreateRefreshToken;
 
-    res.cookie('accessToken', fakeSuccessToken, {
-      maxAge: 900000, // живет 15 минут
+    res.cookie('successToken', fakeSuccessToken, {
+      maxAge: /*18000000*/60000, 
       httpOnly: true
     });
 
@@ -238,16 +251,40 @@ app.post('/api/LoginUser', (req, res  ) => {
   }
 })
 
+app.get('/api/LogoutUser', (req, res) => {
+  const successToken = req.cookies.successToken;
+  
+  const user = BASE.find(u => u.successToken === successToken);
+  
+  if (user) {
+   
+    user.successToken = '';
+    user.refreshToken = '';
+    user.dateCreateRefreshToken = 0;
+    
+  }
+  
+  
+  res.clearCookie('successToken', {
+    httpOnly: true
+  });
+  
+  res.status(200).json({
+    success: true,
+  });
+});
+
 app.post('/api/toogleLikeCard', authMiddleware, ( req: Request<{}, {}, {productId: string}>, res: Response<{success: boolean}>) => {
 
   
   const productId = req.body.productId;
+  const successToken = req.cookies.successToken;
   
-  console.log(productId)
-  const user = req.user;
+  const user = BASE.find(u => u.successToken === successToken);
+  
   
   if (!user) {
-    return res.status(404).json({ success: false, error: "User not found" });
+    return res.status(200).json({ success: false, error: "User not found" });
   }
   
   
@@ -260,9 +297,6 @@ app.post('/api/toogleLikeCard', authMiddleware, ( req: Request<{}, {}, {productI
     // Добавляем
     user.favoriteItems.push(productId);
   }
-  
- 
-  
   res.status(200).json({ success: true });
   
 
@@ -270,54 +304,88 @@ app.post('/api/toogleLikeCard', authMiddleware, ( req: Request<{}, {}, {productI
 )
 
 
-/*
-// При создании/обновлении refreshToken
-const createRefreshToken = (user: IServerUser) => {
-  user.refreshToken = uuidv4();
-  user.refreshTokenCreatedAt = Date.now(); // Запоминаем время создания
-};
-
 // Проверка валидности refreshToken (10 дней = 864,000,000 миллисекунд)
 const isRefreshTokenValid = (user: IServerUser): boolean => {
-  if (!user.refreshToken || !user.refreshTokenCreatedAt) return false;
+  if (!user.refreshToken || !user.dateCreateRefreshToken) return false;
   
   const TOKEN_LIFETIME = 10 * 24 * 60 * 60 * 1000; // 10 дней в миллисекундах
-  const isExpired = Date.now() - user.refreshTokenCreatedAt > TOKEN_LIFETIME;
+  const isExpired = Date.now() - user.dateCreateRefreshToken > TOKEN_LIFETIME;
   
   return !isExpired;
 };
 
 // При запросе на обновление токена
 app.post('/api/refresh-token', (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
+  const refreshToken = req.body.refreshToken;
   
   // Находим пользователя по refreshToken
   const user = BASE.find(u => u.refreshToken === refreshToken);
   
   if (!user) {
-    return res.status(401).json({ error: 'Invalid refresh token' });
+    return res.status(401).json({ message: 'Invalid refresh token' });
   }
   
   // Проверяем, не истек ли refreshToken
   if (!isRefreshTokenValid(user)) {
-    // Очищаем истекший токен
-    user.refreshToken = '';
-    user.refreshTokenCreatedAt = 0;
-    return res.status(401).json({ error: 'Refresh token expired, please login again' });
+    
+    return res.status(401).json({ message: 'Refresh token expired, please login again' });
   }
   
   // Создаем новый accessToken
   const newAccessToken = uuidv4();
-  user.accessToken = newAccessToken;
+  user.successToken = newAccessToken;
+
+  res.cookie('successToken', newAccessToken, {
+    maxAge: 18000000, 
+    httpOnly: true
+  });
   
-  // Опционально: обновляем refreshToken (rolling refresh)
-  user.refreshToken = uuidv4();
-  user.refreshTokenCreatedAt = Date.now();
   
-  res.json({ success: true, accessToken: `Bearer ${newAccessToken}` });
+  res.status(200).json({ success: true });
 });
 
-*/
+
+app.post('/api/DoOrder', (req, res) => {
+
+  const successToken = req.cookies.successToken;
+  
+  const user = BASE.find(u => u.successToken === successToken);
+
+  if (!user) {
+    res.status(401).json({message: 'Пользователь не найден'})
+  }
+  
+
+  const formData = req.body.formData;
+  const random = Math.random()
+  const orderNumber = Math.floor((random*10000000)).toString();
+
+  user?.orders.push({order: orderNumber, formData: formData})
+
+  res.status(200).json({message: orderNumber})
+
+
+
+
+})
+
+app.post('/api/updateUser', (req, res) => {
+  const successToken = req.cookies.successToken;
+  
+  const user = BASE.find(u => u.successToken === successToken);
+
+  if (!user) {
+    res.status(401).json({message: 'Пользователь не найден'})
+  }
+  
+  const newInfo = req.body as RegistrationData;
+
+  user!.profile = newInfo;
+
+  res.status(200).json(user?.profile)
+})
+
+
 
 
 

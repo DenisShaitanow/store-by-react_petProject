@@ -5,7 +5,6 @@ import type { FormUserInformationStepTwoProps } from "./type";
 import { AvatarRegistration } from "../../../../ui/imageUploader/avatarRegistration";
 import { InputUI } from "../../../../ui/input";
 import { InputDropDown } from "../../../../ui/inputDropDown/imputDropDownSimple";
-import { InputDropDownForCheckbox } from "../../../../ui/inputDropDown/inputDropDownForCheckbox";
 import { InputDropDownCalendar } from "../../../../ui/inputDropDown/inputDropDownCalendar";
 
 export const FormUserInformationStepTwo: FC<
@@ -27,15 +26,15 @@ export const FormUserInformationStepTwo: FC<
 }) => {
   // для имени
   const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value) {
+    
       nameChange(e.target.value as string);
-    }
+    
   };
 
   const handleChangeSurname = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value) {
+    
       surnameChange(e.target.value as string);
-    }
+    
   };
 
   // Специализированный обработчик для файлов для Аватарки
@@ -55,9 +54,9 @@ export const FormUserInformationStepTwo: FC<
   };
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value) {
+    
       locationChange(e.target.value as string);
-    }
+    
   };
 
   const handleChangeDate = (val: Date | null) => {

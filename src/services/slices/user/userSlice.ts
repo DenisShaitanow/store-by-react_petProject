@@ -7,12 +7,10 @@ import {
   checkUserAuth,
   loginUser,
   updateUser,
-  changeDataInPersonalCabinet,
 } from "../../thunks/user";
-import { act } from "react";
 
 interface IUserState {
-  id: string
+  id: string;
   user: RegistrationData | null;
   isAuth: boolean;
   isAuthChecked: boolean;
@@ -20,12 +18,11 @@ interface IUserState {
   error: string | null;
 }
 
-
 const userId = localStorage.getItem('userId');
 const parsedUserId = userId ? JSON.parse(userId).userId : '';
 
 export const initialState: IUserState = {
-  id:  parsedUserId,
+  id: parsedUserId,
   user: null,
   isAuth: false,
   isAuthChecked: false,
@@ -33,7 +30,6 @@ export const initialState: IUserState = {
   error: null,
 };
 
-// слайс для пользователей
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -44,84 +40,100 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // checkAuth
+      // ========== checkUserAuth ==========
       .addCase(checkUserAuth.pending, (state) => {
-        console.log('start')
         state.loading = true;
         state.error = null;
       })
       .addCase(checkUserAuth.fulfilled, (state, action) => {
-        state.user = action.payload.user.profile;
+        state.loading = false;
+        state.user = action.payload!.user.profile;
         state.isAuth = true;
         state.isAuthChecked = true;
-        state.loading = false;
       })
-      .addCase(checkUserAuth.rejected, (state) => {
-        state.isAuthChecked = true;
+      .addCase(checkUserAuth.rejected, (state, action) => {
         state.loading = false;
+        state.isAuthChecked = true;
+        state.error = action.payload as string;
       })
 
-      // login
+      // ========== loginUser ==========
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.user = action.payload.user;
-        state.id = action.payload.id
-        state.isAuth = true;
+        console.log('est auth')
         state.loading = false;
-      })
-      .addCase(loginUser.rejected, (state, action) => {
-        
-        state.isAuth = false;
-        state.loading = false;
-      })
-
-      // register
-      .addCase(registerUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.id = action.payload.id;
         state.isAuth = true;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        console.log('net auth')
         state.loading = false;
+        state.isAuth = false;
+        state.error = action.payload as string;
+      })
+
+      // ========== registerUser ==========
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        if (action.payload.userAlreadyReg) {
+          /*dodelat pozge*/
+          console.error('Пользователь с такой почтой уже существует') 
+          state.loading = false;
+          state.isAuth = false;
+        } else {
+          state.loading = false;
+          state.user = action.payload.user;
+          state.id = action.payload.id;
+          state.isAuth = true;
+        }
+       
       })
       .addCase(registerUser.rejected, (state, action) => {
-        
+        state.loading = false;
         state.isAuth = false;
-        state.loading = false;
+        state.error = action.payload as string;
       })
 
-      //changeDataInPersonalCabinet
-      .addCase(changeDataInPersonalCabinet.fulfilled, (state, action) => {
-        state.user = action.payload.user;
-        state.isAuth = true;
-        state.loading = false;
-      })
+      
 
-      // logout
+      // ========== logoutUser ==========
+      .addCase(logoutUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(logoutUser.fulfilled, (state) => {
+        state.loading = false;
         state.user = null;
         state.isAuth = false;
+        state.id = '';
+        localStorage.removeItem('userId'); // очистить localStorage при выходе
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
       })
 
-      // update
+      // ========== updateUser ==========
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateUser.fulfilled, (state, action) => {
-        state.user = action.payload;
         state.loading = false;
+        state.user = action.payload;
+        console.log(action.payload)
       })
-
-      // общие обработчики
-      .addMatcher(
-        (action) => action.type.endsWith("/pending"),
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        },
-      )
-      .addMatcher(
-        (action) => action.type.endsWith("/rejected"),
-        (state, action: PayloadAction<string>) => {
-          state.loading = false;
-          state.error = action.payload as string;
-        },
-      );
+      .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

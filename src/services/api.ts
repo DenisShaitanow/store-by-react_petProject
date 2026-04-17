@@ -18,7 +18,12 @@ export const mockedGetProductsApi = async (): Promise<IProduct[]> => {
   )
 
   if (!response.ok) {
-    throw new Error(`Error code: ${response.status}`);
+    const resFail = await response.json();
+    const message = resFail.message;
+    if (message === 'Invalid or expired access token') {
+      throw new Error('Invalid or expired access token');
+    }
+    
   }
   
   const products = (await response.json()).data;
@@ -28,34 +33,7 @@ export const mockedGetProductsApi = async (): Promise<IProduct[]> => {
 
 
 
-/*
-export const mockedGetProductsApi = async (): Promise<IProduct[]> => {
-  return new Promise((resolve, reject) => {
-    const storedData = localStorage.getItem("products");
-    let localProducts: IProduct[] | null = null;
 
-    if (storedData) {
-      try {
-        localProducts = JSON.parse(storedData);
-      } catch (error) {
-        console.error("Ошибка при разборе данных:", error);
-        reject(error);
-        return;
-      }
-    }
-
-    if (localProducts) {
-      setTimeout(() => {
-        resolve(localProducts);
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        resolve(defaultProducts);
-      }, 1000);
-    }
-  });
-};
-*/
 
 const checkResponse = <T>(res: Response): Promise<T> =>
   res.ok ? res.json() : res.json().then((err) => Promise.reject(err));
@@ -64,100 +42,51 @@ type TServerResponse<T> = {
   success: boolean;
 } & T;
 
-type TRefreshResponse = TServerResponse<{
-  refreshToken: string;
-  accessToken: string;
-}>;
 
-export const refreshToken = (): Promise<TRefreshResponse> =>
-  fetch(`${URL}/auth/token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json;charset=utf-8",
-    },
-    body: JSON.stringify({
-      token: localStorage.getItem("refreshToken"),
-    }),
-  })
-    .then((res) => checkResponse<TRefreshResponse>(res))
-    .then((refreshData) => {
-      if (!refreshData.success) {
-        return Promise.reject(refreshData);
+
+export const refreshToken =  (): Promise<{success: boolean}> =>
+  {
+    const refreshToken = localStorage.getItem("refreshToken");
+    return fetch(`${API_URL}/refresh-token`, {
+      method: "POST",
+      credentials: 'include' ,
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify({refreshToken}),
+      })
+    
+      .then((res) => {if (!res.ok) {
+        return res.json().then((err) => {
+          throw new Error(err.message);
+        });
       }
-      localStorage.setItem("refreshToken", refreshData.refreshToken);
+      return res.json();})
+      .then((refreshData) => {
+        if (!refreshData.success) {
+          throw new Error('Need autentification')
+        }
+        
 
-      // Сохраняем только сам токен, без "Bearer ", отсекаем его за ненадобностью.
-      const accessToken = refreshData.accessToken.startsWith("Bearer ")
-        ? refreshData.accessToken.slice(7)
-        : refreshData.accessToken;
-      setCookie("accessToken", accessToken);
-      return refreshData;
-});
+        return {success: true}
+      
+  });
+}
 
-export const fetchWithRefresh = async <T>(
-  url: RequestInfo,
-  options: RequestInit,
-) => {
-  try {
-    const res = await fetch(url, options);
-    return await checkResponse<T>(res);
-  } catch (err) {
-    if ((err as { message: string }).message === "jwt expired") {
-      const refreshData = await refreshToken();
-      if (options.headers) {
-        (options.headers as { [key: string]: string }).authorization =
-          `Bearer ${getCookie("accessToken") || ""}`;
-      }
-      const res = await fetch(url, options);
-      return await checkResponse<T>(res);
-    } else {
-      return Promise.reject(err);
-    }
-  }
-};
+
 
 // Фиктивные токены
 const fakeAccessToken = "fake_access_token";
 const fakeRefreshToken = "fake_refresh_token";
 
-/*export function mockedRegisterUserApi(data: RegistrationData): Promise<{
-  success: boolean;
-  refreshToken: string;
-  accessToken: string;
-  user: RegistrationData;
-  
-}> {
-  const fakeRegistrationData = {
-    email: data.email,
-    password: data.password,
-    name: data.name,
-    surname: data.surname,
-    avatar: data.avatar,
-    gender: data.gender,
-    location: data.location,
-    birthdayDate: data.birthdayDate,
-  };
-  // Ответ регистрации
-  const mockSuccessResponse = {
-    success: true,
-    refreshToken: fakeRefreshToken,
-    accessToken: `Bearer ${fakeAccessToken}`,
-    user: fakeRegistrationData,
-  };
-
-  return new Promise((resolve) => {
-    // Здесь можем добавить проверку данных или любые условия
-    resolve(mockSuccessResponse); // Возвращаем заготовленную структуру
-  });
-}*/
 
 // ServerFunction
 export function mockedRegisterUserApi(data: RegistrationData): Promise<{
   success: boolean;
   refreshToken: string;
-  accessToken: string;
   user: RegistrationData;
   id: string;
+  userAlreadyReg: boolean
   
 }> {
   
@@ -177,13 +106,12 @@ export function mockedRegisterUserApi(data: RegistrationData): Promise<{
       return response.json();
     })
     .then((data) => {
-      localStorage.setItem('userId', JSON.stringify({userId: data.id}))
       return {
         success: data.success,
         refreshToken: data.refreshToken,
-        accessToken: data.accessToken,
         user: data.user,
-        id: data.id
+        id: data.id,
+        userAlreadyReg: data.userAlreadyReg
     }});
     
   
@@ -210,7 +138,6 @@ export async function mockedGetUserApi(): Promise<{
   isAuthenticated: boolean;
   user: IServerUser
 }> {
-
   const response = await fetch(`${API_URL}/auth/me`, {
     credentials: 'include',
   })
@@ -263,84 +190,27 @@ type TAuthResponse = TServerResponse<{
   user: RegistrationData;
 }>;
 
-/*
-export const registerUserApi = (data: RegistrationData) => {
-  fetch(`${URL}/auth/register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8'
-    },
-    body: JSON.stringify(data)
-  })
-    .then((res) => checkResponse<TAuthResponse>(res))
-    .then((data) => {
-      if (data?.success) {
-        const accessToken = data.accessToken.startsWith('Bearer ')
-          ? data.accessToken.slice(7)
-          : data.accessToken;
-        setCookie('accessToken', accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        return data;
-      }
-      return Promise.reject(data);
-})}
-*/
 
+
+
+//Server function
 export function mockedLogoutApi(): Promise<{ success: boolean }> {
-  return new Promise((resolve) => {
-    resolve({ success: true });
-  });
+  return fetch(`${API_URL}/LogoutUser`, {
+    credentials: 'include',
+  }).then(
+    (res) => {
+      if (res.ok) {
+        return res.json()
+      } else {
+        throw new Error('Проблемa с лог аутом')
+      }
+    }
+  ).then(
+    (data) => {
+      return {success: data.success}
+    }
+  )
 }
-
-/*
-export const logoutApi = () =>
-      fetch(`${URL}/auth/logout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-        body: JSON.stringify({
-          token: localStorage.getItem('refreshToken')
-        })
-}).then((res) => checkResponse<TServerResponse<{}>>(res));
-*/
-
-/*export const mockedGetUserApi = async (
-  accessToken: string,
-): Promise<RegistrationData> => {
-  const storedData = localStorage.getItem("regData"); // Извлекаем данные единожды
-  if (!storedData && accessToken) throw new Error("Пользователь не найден");
-
-  const parsedData = JSON.parse(storedData!); // Парсим строку в объект
-  return parsedData; // Возвращаем распарсенный объект
-};*/
-
-/*
-export const mockedLoginUserApi = async (data: {
-  email: string;
-  password: string;
-}): Promise<TAuthResponse> => {
-  const storedData = localStorage.getItem("regData"); // Извлекаем данные единожды
-  if (!storedData) throw new Error("Пользователь не найден"); // Если данных нет, генерируем ошибку
-
-  const parsedData = JSON.parse(storedData) as RegistrationData;
-
-  // Проверяем совпадение введённых данных с сохранёнными
-  if (
-    parsedData.email !== data.email ||
-    parsedData.password !== data.password
-  ) {
-    throw new Error("Неправильные учетные данные"); // Генерируем ошибку при несовпадении
-  }
-  const mockSuccessResponse = {
-    success: true,
-    refreshToken: fakeRefreshToken,
-    accessToken: `Bearer ${fakeAccessToken}`,
-    user: parsedData,
-  };
-
-  return mockSuccessResponse; // Возвращаем объект пользователя при удачном входе
-};*/
 
 // Server function
 export const mockedLoginUserApi = async (data: {
@@ -349,7 +219,6 @@ export const mockedLoginUserApi = async (data: {
 }): Promise<{
   success: boolean;
   refreshToken: string;
-  accessToken: string;
   user: RegistrationData;
   id: string;
   
@@ -374,7 +243,6 @@ export const mockedLoginUserApi = async (data: {
   .then((data) => ({
     success: data.success,
     refreshToken: data.refreshToken,
-    accessToken: data.accessToken,
     user: data.user,
     id: data.id
   }));
@@ -384,81 +252,36 @@ export const mockedLoginUserApi = async (data: {
 }
 
 
-type TUserResponse = TServerResponse<{ user: RegistrationData }>;
-
-export const mockUpdateUserApi = async (
-  user: RegistrationData,
-): Promise<TUserResponse> => {
-  return {
-    success: true,
-    user: user,
-  };
-};
-
-export const randomOrderId = () => {
-  return Math.floor(Math.random() * 1000000000);
-};
-
 export const mockedDoOrder = async (
   formData: IFormOrderData,
 ): Promise<string> => {
-  const orderId = randomOrderId();
-
-  return orderId.toString();
-};
-
-/*
-export const updateUserApi = (user: RegistrationData) =>
-  fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-      authorization: `Bearer ${getCookie('accessToken') || ''}`
-    } as HeadersInit,
-    body: JSON.stringify(user)
-});*/
-
-/*
-export type TLoginData = {
-  email: string;
-  password: string;
-};
-
-export const loginUserApi = (data: TLoginData) =>
-  fetch(`${URL}/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8'
-    },
-    body: JSON.stringify(data)
-  })
-    .then((res) => checkResponse<TAuthResponse>(res))
-    .then((data) => {
-      if (data?.success) {
-        const accessToken = data.accessToken.startsWith('Bearer ')
-          ? data.accessToken.slice(7)
-          : data.accessToken;
-        setCookie('accessToken', accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        return data;
-      }
-      return Promise.reject(data);
+  try {
+    const response = await fetch(`${API_URL}/DoOrder`, {
+      method: 'POST',
+      credentials: 'include',  
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify(formData),
     });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Ошибка регистрации like');
+    }
+
+    const data = await response.json();
+    console.log(data)
+    return data.order;
+    
+  } catch (error) {
+    
+    throw error;
+  }
+
+};
 
 
-
-
-
-export const updateUserApi = (user: Partial<TRegisterData>) =>
-  fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-      authorization: `Bearer ${getCookie('accessToken') || ''}`
-    } as HeadersInit,
-    body: JSON.stringify(user)
-});
-*/
 
 
 export const toggleLikeApi = async (id: Record<'productId', string>): Promise<{success: boolean}> => {
@@ -476,13 +299,40 @@ export const toggleLikeApi = async (id: Record<'productId', string>): Promise<{s
       const error = await response.json();
       throw new Error(error.message || 'Ошибка регистрации like');
     }
-    
+
     const data = await response.json();
     return data;
     
   } catch (error) {
     
     throw error;
+  }
+
+}
+
+export const updateUserData = async (data: RegistrationData) :Promise<RegistrationData> => {
+
+  try {
+  const response = await fetch(`${API_URL}/updateUser`, {
+      method: 'POST',
+      credentials: 'include',  
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message)
+    }
+
+    const dat = await response.json() as RegistrationData;
+    return dat;
+  } catch(err) {
+    
+    throw err;
+    
   }
 
 }

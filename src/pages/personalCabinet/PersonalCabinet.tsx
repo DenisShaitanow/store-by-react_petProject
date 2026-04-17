@@ -7,7 +7,7 @@ import { AvatarEditAccount } from "../../ui/imageUploader/avatarEditAccount";
 import { type RegistrationData } from "../../types";
 import { ButtonUI } from "../../ui/button";
 import { PasswordInputUI } from "../../ui/password";
-import { changeDataInPersonalCabinet } from "../../services/thunks/user";
+import { updateUser } from "../../services/thunks/user";
 import { useNavigate } from "react-router-dom";
 
 const PersonalCabinet: FC = () => {
@@ -54,6 +54,7 @@ const PersonalCabinet: FC = () => {
 
   const handleLocationChange = (val: string) => {
     setPersonalCabinetData((prev) => ({ ...prev, location: val }));
+    console.log(val)
   };
 
   const handleBirthdayDateChange = (val: string) => {
@@ -73,7 +74,7 @@ const PersonalCabinet: FC = () => {
 
   const handleUpdatePersonalInformation = () => {
     localStorage.setItem("regData", JSON.stringify(personalCabinetData));
-    dispatch(changeDataInPersonalCabinet(personalCabinetData));
+    dispatch(updateUser(personalCabinetData));
     navigate(-1);
   };
 
