@@ -4,7 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { products } from '../src/constants/constants.js';
-import { Request, Response } from 'express';
+
 
 
 
@@ -13,13 +13,13 @@ import {
   type IProduct,
   type RegistrationData,
 } from "../src/types";
-import { error } from 'console';
+
 
 interface IServerUser {
  
   id: string;
   // Профиль
-  profile: RegistrationData;
+  profile: RegistrationData;м  
   refreshToken: string;
   dateCreateRefreshToken: number;
   successToken: string;
@@ -93,7 +93,7 @@ const authMiddleware = (req, res, next) => {
   next();
 };
 
-app.get('/api/auth/me', (req, res: Response<{auth: boolean, user: IServerUser}>) => {
+app.get('/api/auth/me', (req, res) => {
   const successToken = req.cookies.successToken;
   
   if (!successToken) {
@@ -151,17 +151,14 @@ app.get('/api/products', (req, res) => {
 });
 
 
-app.post('/api/registerUser', (req: Request<{}, {}, RegistrationData>, res) => {
+app.post('/api/registerUser', (req, res) => {
   
   const fakeSuccessToken = uuidv4();
   const fakeRefreshToken = uuidv4();
   const dateCreateRefreshToken = Date.now();
   const userId = uuidv4();
 
-  res.cookie('successToken', fakeSuccessToken, {
-    maxAge: 18000000, 
-    httpOnly: true
-  });
+  
 
   if (req.body) {
     const user = BASE.find(item => item.profile.email === req.body.email)
@@ -174,6 +171,7 @@ app.post('/api/registerUser', (req: Request<{}, {}, RegistrationData>, res) => {
         id: '',
         userAlreadyReg: true
       })
+      return
     }
     const newUser: IServerUser = {
       id: userId,
@@ -209,7 +207,10 @@ app.post('/api/registerUser', (req: Request<{}, {}, RegistrationData>, res) => {
   }
 
   
-
+  res.cookie('successToken', fakeSuccessToken, {
+    maxAge: 18000000, 
+    httpOnly: true
+  });
    
 })
 
@@ -274,7 +275,7 @@ app.get('/api/LogoutUser', (req, res) => {
   });
 });
 
-app.post('/api/toogleLikeCard', authMiddleware, ( req: Request<{}, {}, {productId: string}>, res: Response<{success: boolean}>) => {
+app.post('/api/toogleLikeCard', authMiddleware, ( req, res) => {
 
   
   const productId = req.body.productId;

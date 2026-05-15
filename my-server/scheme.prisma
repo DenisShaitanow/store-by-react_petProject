@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========== МОДЕЛИ ==========
+
+// ПОЛЬЗОВАТЕЛЬ
+model User {
+  id                     String         @id @default(cuid())
+  email                  String         @unique
+  password               String
+  name                   String?
+  phone                  String?
+  surname                String?        // ← добавить
+  avatar                 String?        // ← добавить
+  gender                 String?        // ← добавить
+  location               String?        // ← добавить
+  birthdayDate           DateTime?      // ← добавить
+  // Токены
+  refreshToken           String?
+  dateCreateRefreshToken Int?
+  successToken           String?
+  // Связи
+  favoriteItems          FavoriteItem[]
+  orders                 Order[]
+  notifications          Notification[]
+}
+
+// ИЗБРАННЫЕ ТОВАРЫ (связь пользователя с продуктами)
+model FavoriteItem {
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  
+  @@unique([userId, productId])  // один товар нельзя добавить в избранное дважды
+}
+
+// ЗАКАЗ
+model Order {
+   id        String   @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String      @default("pending")  // pending, paid, shipped, delivered, cancelled
+  createdAt DateTime    @default(now())
+  formData  Json?       // данные формы (адрес, способ оплаты и т.д.)
+  items     String[]
+}
+
+// УВЕДОМЛЕНИЯ
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text      String
+  createdAt DateTime @default(now())
+  isRead    Boolean  @default(false)
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  price        Float
+  title        String
+  description  String
+  image        String
+  shortDescription String
+  category     String
+  sex          String   // "man", "woman", "unisex"
+  
+  // Связи (не нужны для хранения товаров, нужны для избранного и заказов)
+  favoritedBy  FavoriteItem[]   
+}
