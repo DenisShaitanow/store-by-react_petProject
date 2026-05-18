@@ -67,45 +67,48 @@ async function seedProducts() {
 
 
 
-const authMiddleware = async (req, res, next) => {
+  const authMiddleware = async (req, res, next) => {
     const successToken = req.cookies.successToken;
   
     if (!successToken) {
-      return res.status(401).json({
-        success: false,
-        error: 'No access token provided. Please login.'
-      });
+        return res.status(401).json({
+            success: false,
+            error: 'No access token provided. Please login.'
+        });
     }
   
     try {
-      const user = await prisma.user.findFirst({
-        where: { successToken: successToken }
-      });
-  
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          error: 'Invalid or expired access token'
+        const user = await prisma.user.findFirst({
+            where: { successToken: successToken }
         });
-      }
   
-      const TOKEN_LIFETIME = 30 * 24 * 60 * 60 * 1000;
-      if (user.dateCreateRefreshToken &&
-          user.dateCreateRefreshToken + TOKEN_LIFETIME < Date.now()) {
-        return res.status(401).json({
-          success: false,
-          error: 'Refresh token expired'
-        });
-      }
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                error: 'Invalid or expired access token'
+            });
+        }
   
-      req.user = user;
-      req.userId = user.id;
-      next();
+        const TOKEN_LIFETIME = 30 * 24 * 60 * 60 * 1000; // 30 дней в миллисекундах
+        
+        // Преобразуем BigInt в Number (если поле не null)
+        const tokenTime = user.dateCreateRefreshToken ? Number(user.dateCreateRefreshToken) : 0;
+        
+        if (user.dateCreateRefreshToken && tokenTime + TOKEN_LIFETIME < Date.now()) {
+            return res.status(401).json({
+                success: false,
+                error: 'Refresh token expired'
+            });
+        }
+  
+        req.user = user;
+        req.userId = user.id;
+        next();
     } catch (error) {
-      console.error('Auth middleware error:', error);
-      res.status(500).json({ success: false, error: 'Server error' });
+        console.error('Auth middleware error:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
     }
-  };
+};
 
   app.get('/api/auth/me', async (req, res) => {
     const successToken = req.cookies.successToken;
@@ -316,7 +319,20 @@ const authMiddleware = async (req, res, next) => {
 
   app.post('/api/toogleLikeCard', authMiddleware, async (req, res) => {
     const productId = req.body.productId;
-    const userId = req.userId;
+    
+    const successToken = req.cookies.successToken;
+    
+    
+
+    const likerUser = await prisma.user.findFirst({
+      where: { successToken: successToken }
+    });
+
+    if (!likerUser) {
+      return res.status(200).json({ success: false, error: "User not found" });
+    }
+
+    const userId = likerUser.id;
   
     try {
       // Проверяем, есть ли товар в избранном
@@ -422,7 +438,7 @@ const authMiddleware = async (req, res, next) => {
         formPaySelf: req.body.formPaySelf,
         numberCard: req.body.numberCard,
         PersonCard: req.body.PersonCard,
-        CVV: string
+        CVV: req.body.CVV
       }
 
       /*const random = Math.random();
@@ -442,11 +458,11 @@ const authMiddleware = async (req, res, next) => {
       // Создаём заказ
       await prisma.order.create({
         data: {
-          id: orderNumber,
+          id: orderNumber.toString(),
           userId: user.id,
           formData: formData,
           status: 'pending',
-          createdAt: Date.now(),
+          createdAt: new Date(),
           items: req.body.productList || []
         }
       });

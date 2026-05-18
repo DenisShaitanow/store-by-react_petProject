@@ -24,7 +24,7 @@ model User {
   birthdayDate           DateTime?      // ← добавить
   // Токены
   refreshToken           String?
-  dateCreateRefreshToken Int?
+  dateCreateRefreshToken BigInt?
   successToken           String?
   // Связи
   favoriteItems          FavoriteItem[]

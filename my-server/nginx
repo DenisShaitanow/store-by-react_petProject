@@ -1,0 +1,61 @@
+  GNU nano 7.2                                                                                                                                    myapp                                                                                                                                              
+server {
+    listen 80;
+    server_name 81.26.189.41;
+
+    # Логи (полезно для отладки)
+    access_log /var/log/nginx/myapp_access.log;
+    error_log /var/log/nginx/myapp_error.log;
+
+    # Отдаем статику фронтенда (билд)
+    location / {
+        root /var/www/myApp;
+        try_files $uri $uri/ /index.html;
+
+        # Кэширование статических файлов
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+    }
+    # Отдаем статику фронтенда (билд)
+    location / {
+        root /var/www/myApp;
+        try_files $uri $uri/ /index.html;
+
+        # Кэширование статических файлов
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+    }
+
+    # Проксируем API запросы на бэкенд
+    location /api {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+
+        # WebSocket поддержка (если нужна)
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+
+        # Основные заголовки
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # КЛЮЧЕВЫЕ НАСТРОЙКИ ДЛЯ КУК
+        proxy_set_header Cookie $http_cookie;
+        proxy_pass_header Set-Cookie;
+        proxy_cookie_path / /;
+
+        # Авторизация
+        proxy_set_header Authorization $http_authorization;
+
+        # Таймауты
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+}
